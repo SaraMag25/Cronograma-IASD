@@ -1,45 +1,43 @@
-import { app, BrowserWindow } from "electron";
-import { createRequire } from "node:module";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
-createRequire(import.meta.url);
-const __dirname$1 = path.dirname(fileURLToPath(import.meta.url));
-process.env.APP_ROOT = path.join(__dirname$1, "..");
-const VITE_DEV_SERVER_URL = process.env["VITE_DEV_SERVER_URL"];
-const MAIN_DIST = path.join(process.env.APP_ROOT, "dist-electron");
-const RENDERER_DIST = path.join(process.env.APP_ROOT, "dist");
-process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, "public") : RENDERER_DIST;
-let win;
-function createWindow() {
-  win = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
+import { app as o, BrowserWindow as i, ipcMain as m, dialog as f } from "electron";
+import { fileURLToPath as _ } from "node:url";
+import n from "node:path";
+import R from "node:fs";
+const s = n.dirname(_(import.meta.url));
+process.env.APP_ROOT = n.join(s, "..");
+const t = process.env.VITE_DEV_SERVER_URL, h = n.join(process.env.APP_ROOT, "dist-electron"), r = n.join(process.env.APP_ROOT, "dist");
+process.env.VITE_PUBLIC = t ? n.join(process.env.APP_ROOT, "public") : r;
+let e;
+function l() {
+  e = new i({
+    icon: n.join(process.env.VITE_PUBLIC, "electron-vite.svg"),
     webPreferences: {
-      preload: path.join(__dirname$1, "preload.mjs")
+      preload: n.join(s, "preload.mjs")
     }
-  });
-  win.webContents.on("did-finish-load", () => {
-    win == null ? void 0 : win.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
-  });
-  if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL);
-  } else {
-    win.loadFile(path.join(RENDERER_DIST, "index.html"));
-  }
+  }), e.webContents.on("did-finish-load", () => {
+    e == null || e.webContents.send("main-process-message", (/* @__PURE__ */ new Date()).toLocaleString());
+  }), t ? e.loadURL(t) : e.loadFile(n.join(r, "index.html"));
 }
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-    win = null;
-  }
+o.on("window-all-closed", () => {
+  process.platform !== "darwin" && (o.quit(), e = null);
 });
-app.on("activate", () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-  }
+o.on("activate", () => {
+  i.getAllWindows().length === 0 && l();
 });
-app.whenReady().then(createWindow);
+o.whenReady().then(l);
+m.handle("salvar-imagem", async (w, c, p) => {
+  const { filePath: a } = await f.showSaveDialog({
+    title: "Salvar Cronograma",
+    defaultPath: p,
+    filters: [{ name: "Imagens PNG", extensions: ["png"] }]
+  });
+  if (a) {
+    const d = c.replace(/^data:image\/png;base64,/, "");
+    return R.writeFileSync(a, d, "base64"), !0;
+  }
+  return !1;
+});
 export {
-  MAIN_DIST,
-  RENDERER_DIST,
-  VITE_DEV_SERVER_URL
+  h as MAIN_DIST,
+  r as RENDERER_DIST,
+  t as VITE_DEV_SERVER_URL
 };

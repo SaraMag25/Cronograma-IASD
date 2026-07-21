@@ -23,5 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 
-#nome dos membros
+# Nome dos membros (Mantido privado localmente)
 /src/membros.ts
+
+# Pastas de build e instaladores finais 
+dist/
+dist-electron/
+release/

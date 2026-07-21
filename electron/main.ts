@@ -1,9 +1,8 @@
-import { app, BrowserWindow } from 'electron'
-import { createRequire } from 'node:module'
+import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import fs from 'node:fs' 
 
-const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // The built directory structure
@@ -66,3 +65,22 @@ app.on('activate', () => {
 })
 
 app.whenReady().then(createWindow)
+
+// =======================================================================
+// COMANDO PARA ABRIR A JANELA "SALVAR COMO" DO SISTEMA
+// =======================================================================
+ipcMain.handle('salvar-imagem', async (_event, dataUrl, nomeArquivo) => {
+  const { filePath } = await dialog.showSaveDialog({
+    title: 'Salvar Cronograma',
+    defaultPath: nomeArquivo,
+    filters: [{ name: 'Imagens PNG', extensions: ['png'] }]
+  });
+
+  // Se a pessoa escolheu a pasta e clicou em Salvar:
+  if (filePath) {
+    const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+    fs.writeFileSync(filePath, base64Data, 'base64');
+    return true;
+  }
+  return false;
+});
