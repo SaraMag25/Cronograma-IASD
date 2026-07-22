@@ -1,67 +1,41 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { listaDeMembros } from './membros';
+import { versiculosBiblicos } from './versiculos';
 import html2canvas from 'html2canvas-pro';
-
-type Cargos = 'cantico' | 'plataforma' | 'sermao' | 'mensagem' | 'rec' | 'ofertas1' | 'ofertas2';
-
-type EscalaDoDia = {
-  [key in Cargos]: string;
-};
-
-interface CartaoDiaProps {
-  data: string;
-  escala: EscalaDoDia;
-  selecionado: boolean;
-  aoClicar: () => void;
-}
-
-const CartaoDia = ({ data, escala, selecionado, aoClicar }: CartaoDiaProps) => {
-  const ofertasFormatadas = [escala.ofertas1, escala.ofertas2]
-    .filter(nome => nome !== "")
-    .join(' e ');
-
-  return (
-    <div 
-      onClick={(e) => {
-        e.stopPropagation();
-        aoClicar();
-      }}
-      className={`flex flex-col mb-6 xl:mb-10 text-[16px] xl:text-[18px] leading-snug p-2 rounded-lg cursor-pointer transition-all duration-300 ${
-        selecionado 
-          ? "border-4 border-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)] scale-105 bg-blue-50 print:border-none print:shadow-none print:scale-100 print:bg-transparent relative z-10" 
-          : "border-4 border-transparent hover:bg-gray-100 print:border-none print:hover:bg-transparent"
-      }`}
-    >
-      <span className="font-bold text-black mb-1">{data}</span>
-      
-      <div><span className="font-bold text-black">S.de Cântico: </span><span className="font-bold text-red-600">{escala.cantico}</span></div>
-      <div><span className="font-bold text-black">Plataforma: </span><span className="font-bold text-red-600">{escala.plataforma}</span></div>
-      <div><span className="font-bold text-black">Sermão: </span><span className="font-bold text-red-600">{escala.sermao}</span></div>
-      <div><span className="font-bold text-black">Mensagem especial: </span><span className="font-bold text-red-600">{escala.mensagem}</span></div>
-      
-      <div className="flex gap-10 mt-1">
-        <div><span className="font-bold text-black">Rec: </span><span className="font-bold text-red-600">{escala.rec}</span></div>
-        <div><span className="font-bold text-black">Ofertas: </span><span className="font-bold text-red-600">{ofertasFormatadas}</span></div>
-      </div>
-    </div>
-  );
-};
+import { Cargos, EscalaDoDia } from './types';
+import { CartaoDia } from './components/CartaoDia';
+import { Sidebar } from './components/Sidebar';
 
 function App() {
   const [menuAberto, setMenuAberto] = useState(false);
-  const [mesSelecionado, setMesSelecionado] = useState(6);
-  const [anoSelecionado, setAnoSelecionado] = useState(2026);
-  
-  const [corTema, setCorTema] = useState('#c2dceb');
-
-  const [diaSelecionado, setDiaSelecionado] = useState<string | null>(null);
-  const [escalas, setEscalas] = useState<Record<string, EscalaDoDia>>({});
   const [erro, setErro] = useState<string | null>(null);
+  const [diaSelecionado, setDiaSelecionado] = useState<string | null>(null);
+
+  const [mesSelecionado, setMesSelecionado] = useState(() => Number(localStorage.getItem('mesSelecionado')) || 6);
+  const [anoSelecionado, setAnoSelecionado] = useState(() => Number(localStorage.getItem('anoSelecionado')) || 2026);
+  const [corTema, setCorTema] = useState(() => localStorage.getItem('corTema') || '#c2dceb');
+  const [informacoesCustomizadas, setInformacoesCustomizadas] = useState(() => localStorage.getItem('informacoesCustomizadas') || '');
+  
+  const [escalas, setEscalas] = useState<Record<string, EscalaDoDia>>(() => {
+    const dadosSalvos = localStorage.getItem('escalas');
+    return dadosSalvos ? JSON.parse(dadosSalvos) : {};
+  });
+
+  useEffect(() => localStorage.setItem('mesSelecionado', mesSelecionado.toString()), [mesSelecionado]);
+  useEffect(() => localStorage.setItem('anoSelecionado', anoSelecionado.toString()), [anoSelecionado]);
+  useEffect(() => localStorage.setItem('corTema', corTema), [corTema]);
+  useEffect(() => localStorage.setItem('informacoesCustomizadas', informacoesCustomizadas), [informacoesCustomizadas]);
+  useEffect(() => localStorage.setItem('escalas', JSON.stringify(escalas)), [escalas]);
 
   const nomesDosMeses = [
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
     "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
   ];
+
+  const sortearVersiculo = () => {
+    const indiceAleatorio = Math.floor(Math.random() * versiculosBiblicos.length);
+    setInformacoesCustomizadas(versiculosBiblicos[indiceAleatorio]);
+  };
 
   const diasDoMes = useMemo(() => {
     const quartas: string[] = [];
@@ -150,11 +124,37 @@ function App() {
       });
       
       const dataURL = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = dataURL;
-      link.download = `Cronograma-${nomesDosMeses[mesSelecionado]}-${anoSelecionado}.png`;
-      link.click();
+      const nomeDoArquivo = `Cronograma-${nomesDosMeses[mesSelecionado]}-${anoSelecionado}.png`;
+
+      // @ts-ignore
+      if (window.api && window.api.salvarImagem) {
+        // @ts-ignore
+        await window.api.salvarImagem(dataURL, nomeDoArquivo);
+      } else {
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = nomeDoArquivo;
+        link.click();
+      }
     }, 400); 
+  };
+
+  const apagarTodosOsDados = () => {
+    const confirmacao = window.confirm(
+      "ATENÇÃO EXTREMA!\n\n" +
+      "Você está prestes a APAGAR TODOS os dados deste aplicativo.\n" +
+      "Isso inclui todas as escalas que você montou, avisos e configurações.\n\n" +
+      "Tem certeza absoluta de que deseja continuar? Essa ação NÃO PODE ser desfeita!"
+    );
+
+    if (confirmacao) {
+      localStorage.clear();
+      setEscalas({});
+      setInformacoesCustomizadas('');
+      setDiaSelecionado(null);
+      setCorTema('#c2dceb'); 
+      mostrarErro("Todos os dados foram apagados com sucesso.");
+    }
   };
 
   return (
@@ -163,13 +163,12 @@ function App() {
       onClick={() => setDiaSelecionado(null)}
     >
       {erro && (
-        <div className="print:hidden fixed top-8 left-1/2 transform -translate-x-1/2 z-[60] bg-red-100 border-l-8 border-red-600 text-red-900 px-6 py-4 rounded-lg shadow-2xl flex items-center gap-4 animate-[bounce_0.5s_ease-in-out]">
-          <span className="text-3xl">⚠️</span>
+        <div className="print:hidden fixed top-8 left-1/2 transform -translate-x-1/2 z-[60] bg-red-100 border-l-8 border-red-600 text-red-900 px-6 py-4 rounded-lg shadow-2xl flex items-center gap-4">
           <div className="flex flex-col">
-            <span className="font-black text-lg">Ação não permitida!</span>
+            <span className="font-bold text-lg">Aviso</span>
             <span className="font-medium">{erro}</span>
           </div>
-          <button onClick={() => setErro(null)} className="ml-4 font-black text-xl hover:text-red-500 transition-colors">✕</button>
+          <button onClick={() => setErro(null)} className="ml-4 font-bold text-xl hover:text-red-500 transition-colors">✕</button>
         </div>
       )}
 
@@ -179,112 +178,36 @@ function App() {
 
       <button 
         onClick={(e) => { e.stopPropagation(); setMenuAberto(true); }}
-        className={`print:hidden fixed top-6 left-6 z-40 p-3 bg-white border-2 border-black rounded-lg shadow-xl hover:bg-gray-100 transition-all duration-300 ${
+        className={`print:hidden fixed top-6 left-6 z-40 p-3 bg-white border border-gray-300 rounded-lg shadow-md hover:bg-gray-50 transition-all duration-300 ${
           menuAberto ? "opacity-0 -translate-x-full pointer-events-none" : "opacity-100 translate-x-0"
         }`}
       >
-        <svg className="w-7 h-7 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+        <svg className="w-6 h-6 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
 
-      <div 
-        onClick={(e) => e.stopPropagation()}
-        className={`print:hidden fixed top-0 left-0 h-full w-80 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out border-r-2 border-black flex flex-col ${
-          menuAberto ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="bg-blue-900 text-white p-5 flex justify-between items-center border-b-2 border-black">
-          <h2 className="text-xl font-bold tracking-wide">Configurações</h2>
-          <button onClick={() => setMenuAberto(false)} className="text-white hover:text-red-400">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="p-6 font-sans flex flex-col gap-6 overflow-y-auto pb-20">
-          
-          <div className="flex flex-col gap-4 pb-6 border-b border-gray-300">
-            <label className="flex flex-col gap-1 font-bold text-black">
-              Mês:
-              <select value={mesSelecionado} onChange={(e) => setMesSelecionado(Number(e.target.value))} className="border-2 border-gray-400 rounded p-2 outline-none">
-                {nomesDosMeses.map((nome, index) => <option key={index} value={index}>{nome}</option>)}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 font-bold text-black">
-              Ano:
-              <input type="number" value={anoSelecionado} onChange={(e) => setAnoSelecionado(Number(e.target.value))} className="border-2 border-gray-400 rounded p-2 outline-none"/>
-            </label>
-            <label className="flex flex-col gap-1 font-bold text-black">
-              Cor do Cabeçalho:
-              <div className="flex gap-2 items-center">
-                <input 
-                  type="color" 
-                  value={corTema} 
-                  onChange={(e) => setCorTema(e.target.value)} 
-                  className="w-10 h-10 border-2 border-black rounded cursor-pointer"
-                />
-                <span className="text-sm text-gray-600 font-normal">Escolha sua cor preferida</span>
-              </div>
-            </label>
-          </div>
-
-          <div className="flex flex-col gap-4 pb-6 border-b border-gray-300">
-            {!diaSelecionado ? (
-              <div className="bg-[#fffdf0] py-5 px-4 rounded border border-yellow-400 text-center shadow-sm">
-                <span className="text-[#a1700d] font-bold text-[17px] leading-snug">
-                  👉 Clique em um dia no<br/>cronograma para adicionar os<br/>membros!
-                </span>
-              </div>
-            ) : (
-              <div className="bg-blue-50 p-4 rounded-lg border-2 border-blue-400 shadow-inner flex flex-col gap-4 relative">
-                <div className="flex justify-between items-center border-b-2 border-blue-200 pb-2">
-                  <h3 className="font-black text-xl text-blue-900">{diaSelecionado}</h3>
-                  <button onClick={() => setDiaSelecionado(null)} className="text-xs bg-red-100 text-red-700 font-bold px-2 py-1 rounded border border-red-300 hover:bg-red-200">
-                    Desmarcar
-                  </button>
-                </div>
-                
-                {([] as Cargos[]).concat(
-                  ['cantico', 'plataforma', 'sermao', 'mensagem', 'rec', 'ofertas1'],
-                  diaEhSabado ? ['ofertas2'] : [] 
-                ).map((cargo) => {
-                  let rotulo = cargo.charAt(0).toUpperCase() + cargo.slice(1);
-                  if (cargo === 'cantico') rotulo = 'S. de Cântico';
-                  if (cargo === 'rec') rotulo = 'Recepção';
-                  if (cargo === 'ofertas1') rotulo = diaEhSabado ? 'Ofertas (Pessoa 1)' : 'Ofertas';
-                  if (cargo === 'ofertas2') rotulo = 'Ofertas (Pessoa 2)';
-
-                  return (
-                    <label key={cargo} className="flex flex-col gap-1 text-sm font-bold text-gray-800">
-                      {rotulo}:
-                      <input 
-                        list="lista-membros"
-                        value={obterEscalaDoDia(diaSelecionado)[cargo]} 
-                        onChange={(e) => atualizarEscala(cargo, e.target.value)}
-                        placeholder="Busque ou digite o nome..."
-                        className="border-2 border-gray-400 rounded p-2 bg-white outline-none focus:border-blue-600 transition-colors"
-                      />
-                    </label>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-3 pt-2">
-            <h3 className="font-bold text-black text-center text-[16px]">Exportar Cronograma</h3>
-            <button 
-              onClick={exportarImagem}
-              className="bg-[#1a3673] text-white font-bold py-3 px-4 rounded hover:bg-blue-900 transition-colors border-2 border-[#0f2147] flex justify-center items-center gap-2 shadow-md"
-            >
-              📸 Exportar Imagem
-            </button>
-          </div>
-
-        </div>
-      </div>
+      <Sidebar 
+        menuAberto={menuAberto}
+        setMenuAberto={setMenuAberto}
+        mesSelecionado={mesSelecionado}
+        setMesSelecionado={setMesSelecionado}
+        anoSelecionado={anoSelecionado}
+        setAnoSelecionado={setAnoSelecionado}
+        corTema={corTema}
+        setCorTema={setCorTema}
+        informacoesCustomizadas={informacoesCustomizadas}
+        setInformacoesCustomizadas={setInformacoesCustomizadas}
+        sortearVersiculo={sortearVersiculo}
+        diaSelecionado={diaSelecionado}
+        setDiaSelecionado={setDiaSelecionado}
+        diasDoMes={diasDoMes}
+        obterEscalaDoDia={obterEscalaDoDia}
+        atualizarEscala={atualizarEscala}
+        exportarImagem={exportarImagem}
+        apagarTodosOsDados={apagarTodosOsDados}
+        nomesDosMeses={nomesDosMeses}
+      />
 
       <div 
         className={`flex-1 flex justify-center items-stretch p-4 md:p-8 transition-all duration-300 ease-in-out print:p-0 print:m-0 print:block ${
@@ -295,14 +218,25 @@ function App() {
           <div 
             id="folha-cronograma"
             onClick={(e) => e.stopPropagation()} 
-            className="bg-white w-full flex-1 border-2 border-black shadow-2xl flex flex-col print:shadow-none print:border-2" 
+            className="bg-white w-full flex-1 border-2 border-black shadow-2xl flex flex-col relative overflow-hidden print:shadow-none print:border-2" 
             style={{ fontFamily: '"Times New Roman", Times, serif' }}
           >
-            <div className="border-b-2 border-black py-4 transition-colors duration-300" style={{ backgroundColor: corTema }}>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+              <img 
+                src="./logo.jpeg" 
+                alt="" 
+                className="w-[45%] opacity-15 object-contain" 
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
+            </div>
+
+            <div className="border-b-2 border-black py-4 transition-colors duration-300 relative z-10" style={{ backgroundColor: corTema }}>
               <h1 className="text-[35px] xl:text-[45px] font-bold text-center text-black tracking-wide">Cronograma</h1>
             </div>
 
-            <div className="grid grid-cols-3 flex-1">
+            <div className="grid grid-cols-3 flex-1 relative z-10">
               <div className="border-r-2 border-black flex flex-col">
                 <div className="border-b-2 border-black py-2 bg-gray-50"><h2 className="text-3xl font-bold text-center text-black">Quartas</h2></div>
                 <div className="p-4 flex-1">
@@ -329,9 +263,16 @@ function App() {
                       <CartaoDia key={data} data={data} escala={obterEscalaDoDia(data)} selecionado={diaSelecionado === data} aoClicar={() => lidarComCliqueNoDia(data)} />
                     ))}
                   </div>
-                  <div className="mt-8 text-red-600 font-bold text-[18px] xl:text-[20px] leading-tight pb-4 px-4">
-                    Informações do mês de {nomesDosMeses[mesSelecionado]}:<br/>
-                    (Escreva os avisos aqui)
+                  
+                  <div className="mt-8 text-red-600 font-bold text-[16px] xl:text-[18px] leading-tight pb-4 px-4 whitespace-pre-wrap">
+                    {informacoesCustomizadas !== '' ? (
+                      informacoesCustomizadas
+                    ) : (
+                      <>
+                        Informações do mês de {nomesDosMeses[mesSelecionado]}:<br/>
+                        (Escreva os avisos aqui ou clique em sortear versículo)
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -339,7 +280,6 @@ function App() {
           </div>
         </div>
       </div>
-      
     </div>
   );
 }
