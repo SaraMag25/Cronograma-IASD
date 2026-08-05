@@ -73,7 +73,7 @@ function App() {
 
   const obterEscalaDoDia = (data: string): EscalaDoDia => {
     return escalas[data] || {
-      cantico: '', plataforma: '', sermao: '', mensagem: '', rec: '', ofertas1: '', ofertas2: ''
+      cantico: '', plataforma: '', plataforma2: '', sermao: '', mensagem: '', mensagem2: '', rec: '', rec2: '', ofertas1: '', ofertas2: ''
     };
   };
 
@@ -98,8 +98,13 @@ function App() {
         let nomeDoCargoExistente = jaEscaladoEm[0];
         if (nomeDoCargoExistente === 'ofertas1') nomeDoCargoExistente = diaEhSabado ? 'Ofertas (Pessoa 1)' : 'Ofertas';
         if (nomeDoCargoExistente === 'ofertas2') nomeDoCargoExistente = 'Ofertas (Pessoa 2)';
+        if (nomeDoCargoExistente === 'plataforma') nomeDoCargoExistente = 'Plataforma (Pessoa 1)';
+        if (nomeDoCargoExistente === 'plataforma2') nomeDoCargoExistente = 'Plataforma (Pessoa 2)';
+        if (nomeDoCargoExistente === 'mensagem') nomeDoCargoExistente = 'Mensagem Especial (Pessoa 1)';
+        if (nomeDoCargoExistente === 'mensagem2') nomeDoCargoExistente = 'Mensagem Especial (Pessoa 2)';
+        if (nomeDoCargoExistente === 'rec') nomeDoCargoExistente = 'Recepção (Pessoa 1)';
+        if (nomeDoCargoExistente === 'rec2') nomeDoCargoExistente = 'Recepção (Pessoa 2)';
         if (nomeDoCargoExistente === 'cantico') nomeDoCargoExistente = 'S. de Cântico';
-        if (nomeDoCargoExistente === 'rec') nomeDoCargoExistente = 'Recepção';
         
         mostrarErro(`${nomeDoMembro} já está na função de "${nomeDoCargoExistente}" neste dia. Escolha outra pessoa!`);
         return; 

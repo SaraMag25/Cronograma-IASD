@@ -123,14 +123,22 @@ export const Sidebar = ({
                   Desmarcar
                 </button>
               </div>
-              
               {([] as Cargos[]).concat(
-                ['cantico', 'plataforma', 'sermao', 'mensagem', 'rec', 'ofertas1'],
+                ['cantico', 'plataforma', 'plataforma2', 'sermao', 'mensagem', 'mensagem2', 'rec', 'rec2', 'ofertas1'],
                 diaEhSabado ? ['ofertas2'] : [] 
               ).map((cargo) => {
                 let rotulo = cargo.charAt(0).toUpperCase() + cargo.slice(1);
                 if (cargo === 'cantico') rotulo = 'S. de Cântico';
-                if (cargo === 'rec') rotulo = 'Recepção';
+                
+                if (cargo === 'plataforma') rotulo = 'Plataforma (Pessoa 1)';
+                if (cargo === 'plataforma2') rotulo = 'Plataforma (Pessoa 2)';
+                
+                if (cargo === 'mensagem') rotulo = 'Mensagem Especial (Pessoa 1)';
+                if (cargo === 'mensagem2') rotulo = 'Mensagem Especial (Pessoa 2)';
+                
+                if (cargo === 'rec') rotulo = 'Recepção (Pessoa 1)';
+                if (cargo === 'rec2') rotulo = 'Recepção (Pessoa 2)';
+                
                 if (cargo === 'ofertas1') rotulo = diaEhSabado ? 'Ofertas (Pessoa 1)' : 'Ofertas';
                 if (cargo === 'ofertas2') rotulo = 'Ofertas (Pessoa 2)';
 
@@ -139,7 +147,7 @@ export const Sidebar = ({
                     {rotulo}:
                     <input 
                       list="lista-membros"
-                      value={obterEscalaDoDia(diaSelecionado)[cargo]} 
+                      value={obterEscalaDoDia(diaSelecionado)[cargo] || ''} 
                       onChange={(e) => atualizarEscala(cargo, e.target.value)}
                       placeholder="Pesquisar membro..."
                       className="border border-gray-300 rounded-lg p-2 text-xs bg-white font-normal outline-none focus:border-blue-600 transition-colors"

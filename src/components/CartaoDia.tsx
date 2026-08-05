@@ -27,14 +27,18 @@ export const CartaoDia = ({ data, escala, selecionado, aoClicar }: CartaoDiaProp
       </div>
       
       {renderLinha('S.de Cântico', escala.cantico)}
-      {renderLinha('Plataforma', escala.plataforma)}
+      {renderLinha('Plataforma', escala.plataforma2 ? `${escala.plataforma} / ${escala.plataforma2}` : escala.plataforma)}
       {renderLinha('Sermão', escala.sermao)}
-      {renderLinha('Mensagem especial', escala.mensagem)}
+      
+      {renderLinha('Mensagem especial', escala.mensagem2 ? `${escala.mensagem} / ${escala.mensagem2}` : escala.mensagem)}
 
       <div className="flex flex-wrap gap-x-2">
         <div>
           <span className="font-bold text-black">Rec: </span>
-          <span className="font-bold text-red-600">{escala.rec}</span>
+          <span className="font-bold text-red-600">
+            {escala.rec}
+            {escala.rec2 ? ` / ${escala.rec2}` : ''}
+          </span>
         </div>
         
         <div className="ml-2">
