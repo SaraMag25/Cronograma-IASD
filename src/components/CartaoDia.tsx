@@ -8,7 +8,6 @@ interface CartaoDiaProps {
 }
 
 export const CartaoDia = ({ data, escala, selecionado, aoClicar }: CartaoDiaProps) => {
-  
   const renderLinha = (label: string, valor: string) => (
     <div>
       <span className="font-bold text-black">{label}: </span>
@@ -19,15 +18,14 @@ export const CartaoDia = ({ data, escala, selecionado, aoClicar }: CartaoDiaProp
   return (
     <div
       onClick={aoClicar}
-      className={`p-1 mb-2 cursor-pointer transition-all ${
+      className={`px-1 py-0.5 mb-1 cursor-pointer transition-all ${
         selecionado ? 'bg-blue-100 ring-2 ring-blue-500 rounded-sm' : 'hover:bg-gray-50'
-      } text-[15px] xl:text-[17px] leading-[1.25]`}
+      } text-[16px] leading-tight`} 
     >
-
       <div className="font-bold text-black">
         {data}
       </div>
-
+      
       {renderLinha('S.de Cântico', escala.cantico)}
       {renderLinha('Plataforma', escala.plataforma)}
       {renderLinha('Sermão', escala.sermao)}
@@ -39,7 +37,7 @@ export const CartaoDia = ({ data, escala, selecionado, aoClicar }: CartaoDiaProp
           <span className="font-bold text-red-600">{escala.rec}</span>
         </div>
         
-        <div className="ml-2"> 
+        <div className="ml-2">
           <span className="font-bold text-black">Ofertas: </span>
           <span className="font-bold text-red-600">
             {escala.ofertas1}

@@ -172,7 +172,6 @@ function App() {
   };
   
   return (
-    
     <div 
       className="min-h-screen bg-gray-300 flex overflow-x-hidden print:bg-white print:block"
       onClick={() => setDiaSelecionado(null)}
@@ -225,16 +224,21 @@ function App() {
       />
 
       <div 
-        className={`flex-1 flex justify-center items-stretch p-4 md:p-8 transition-all duration-300 ease-in-out print:p-0 print:m-0 print:block ${
+        className={`flex-1 overflow-auto bg-gray-300 transition-all duration-300 ease-in-out print:p-0 print:bg-white ${
           menuAberto ? "ml-80" : "ml-0"
         }`}
       >
-        <div className="w-full flex flex-col items-center">
+        <div className="min-w-max min-h-max p-4 md:p-8 flex justify-center items-center">
+          
           <div 
             id="folha-cronograma"
             onClick={(e) => e.stopPropagation()} 
-            className="bg-white w-full flex-1 border-2 border-black shadow-2xl flex flex-col relative overflow-hidden print:shadow-none print:border-2" 
-            style={{ fontFamily: '"Times New Roman", Times, serif' }}
+            className="bg-white border-2 border-black shadow-2xl flex flex-col relative overflow-hidden print:shadow-none print:border-0 shrink-0" 
+            style={{ 
+              fontFamily: '"Arial Black", Arial, sans-serif',
+              width: '1123px',
+              height: '794px' 
+            }}
           >
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
               <img 
@@ -247,19 +251,19 @@ function App() {
               />
             </div>
 
-            <div className="border-b-2 border-black py-4 transition-colors duration-300 relative z-10" style={{ backgroundColor: corTema }}>
-              <h1 className="text-[35px] xl:text-[45px] font-bold text-center text-black tracking-wide">Cronograma</h1>
+            <div className="border-b-2 border-black py-2 transition-colors duration-300 relative z-10 flex-shrink-0" style={{ backgroundColor: corTema }}>
+              <h1 className="text-[38px] font-bold text-center text-black tracking-wide">Cronograma</h1>
             </div>
 
             <div className="grid grid-cols-3 flex-1 relative z-10">
               {colunasOrdenadas.map((coluna, index) => (
                 <div key={coluna.id} className={`${index < 2 ? 'border-r-2 border-black' : ''} flex flex-col`}>
                   
-                  <div className="border-b-2 border-black py-2 bg-gray-50 flex-shrink-0">
-                    <h2 className="text-3xl font-bold text-center text-black">{coluna.titulo}</h2>
+                  <div className="border-b-2 border-black py-1 bg-gray-50 flex-shrink-0">
+                    <h2 className="text-[26px] font-bold text-center text-black">{coluna.titulo}</h2>
                   </div>
                   
-                  <div className="p-4 flex-1 flex flex-col justify-between">
+                  <div className="p-2 flex-1 flex flex-col justify-between">
                     <div>
                       {coluna.dias.map((data) => (
                         <CartaoDia key={data} data={data} escala={obterEscalaDoDia(data)} selecionado={diaSelecionado === data} aoClicar={() => lidarComCliqueNoDia(data)} />
@@ -267,7 +271,7 @@ function App() {
                     </div>
 
                     {index === 2 && (
-                      <div className="mt-8 text-red-600 font-bold text-[16px] xl:text-[18px] leading-tight pb-4 px-4 whitespace-pre-wrap flex-shrink-0">
+                      <div className="mt-2 text-red-600 font-bold text-[17px] leading-tight px-2 whitespace-pre-wrap flex-shrink-0">
                         {informacoesCustomizadas !== '' ? (
                           informacoesCustomizadas
                         ) : (
@@ -283,6 +287,7 @@ function App() {
               ))}
             </div>
           </div>
+
         </div>
       </div>
     </div>
