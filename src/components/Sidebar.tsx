@@ -21,6 +21,7 @@ interface SidebarProps {
   };
   obterEscalaDoDia: (data: string) => EscalaDoDia;
   atualizarEscala: (cargo: Cargos, nome: string) => void;
+  atualizarStatusCulto: (isCancelado: boolean, motivo: string) => void;
   exportarImagem: () => void;
   apagarTodosOsDados: () => void;
   nomesDosMeses: string[];
@@ -43,11 +44,15 @@ export const Sidebar = ({
   diasDoMes,
   obterEscalaDoDia,
   atualizarEscala,
+  atualizarStatusCulto,
   exportarImagem,
   apagarTodosOsDados,
   nomesDosMeses,
 }: SidebarProps) => {
   const diaEhSabado = diaSelecionado ? diasDoMes.sabados.includes(diaSelecionado) : false;
+  const escalaAtual = diaSelecionado ? obterEscalaDoDia(diaSelecionado) : null;
+  const isCancelado = escalaAtual?.isCultoCancelado || false;
+  const motivoCancelamento = escalaAtual?.motivoCancelamento || '';
 
   return (
     <div 
@@ -123,22 +128,41 @@ export const Sidebar = ({
                   Desmarcar
                 </button>
               </div>
-              {([] as Cargos[]).concat(
+
+              <label className="flex items-center gap-2 text-xs font-bold text-red-800 bg-red-100 p-2 rounded-lg border border-red-300 cursor-pointer hover:bg-red-200 transition-colors">
+                <input 
+                  type="checkbox"
+                  checked={isCancelado}
+                  onChange={(e) => atualizarStatusCulto(e.target.checked, motivoCancelamento)}
+                  className="w-4 h-4 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer"
+                />
+                Dia sem culto / Data especial
+              </label>
+
+              {isCancelado && (
+                <label className="flex flex-col gap-1 text-xs font-semibold text-gray-700 mt-1 mb-2">
+                  Motivo / Título do Evento:
+                  <input 
+                    value={motivoCancelamento}
+                    onChange={(e) => atualizarStatusCulto(isCancelado, e.target.value)}
+                    placeholder="Ex: Fim de semana da família"
+                    className="border border-red-300 rounded-lg p-2 text-xs bg-white font-bold text-red-700 outline-none focus:border-red-600 transition-colors"
+                  />
+                </label>
+              )}
+              
+              {!isCancelado && ([] as Cargos[]).concat(
                 ['cantico', 'plataforma', 'plataforma2', 'sermao', 'mensagem', 'mensagem2', 'rec', 'rec2', 'ofertas1'],
                 diaEhSabado ? ['ofertas2'] : [] 
               ).map((cargo) => {
                 let rotulo = cargo.charAt(0).toUpperCase() + cargo.slice(1);
                 if (cargo === 'cantico') rotulo = 'S. de Cântico';
-                
                 if (cargo === 'plataforma') rotulo = 'Plataforma (Pessoa 1)';
                 if (cargo === 'plataforma2') rotulo = 'Plataforma (Pessoa 2)';
-                
                 if (cargo === 'mensagem') rotulo = 'Mensagem Especial (Pessoa 1)';
                 if (cargo === 'mensagem2') rotulo = 'Mensagem Especial (Pessoa 2)';
-                
                 if (cargo === 'rec') rotulo = 'Recepção (Pessoa 1)';
                 if (cargo === 'rec2') rotulo = 'Recepção (Pessoa 2)';
-                
                 if (cargo === 'ofertas1') rotulo = diaEhSabado ? 'Ofertas (Pessoa 1)' : 'Ofertas';
                 if (cargo === 'ofertas2') rotulo = 'Ofertas (Pessoa 2)';
 
@@ -147,7 +171,7 @@ export const Sidebar = ({
                     {rotulo}:
                     <input 
                       list="lista-membros"
-                      value={obterEscalaDoDia(diaSelecionado)[cargo] || ''} 
+                      value={escalaAtual ? escalaAtual[cargo] : ''} 
                       onChange={(e) => atualizarEscala(cargo, e.target.value)}
                       placeholder="Pesquisar membro..."
                       className="border border-gray-300 rounded-lg p-2 text-xs bg-white font-normal outline-none focus:border-blue-600 transition-colors"

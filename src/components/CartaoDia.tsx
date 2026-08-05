@@ -18,7 +18,7 @@ export const CartaoDia = ({ data, escala, selecionado, aoClicar }: CartaoDiaProp
   return (
     <div
       onClick={aoClicar}
-      className={`px-1 py-0.5 mb-1 cursor-pointer transition-all ${
+      className={`px-1 py-0.5 mb-1 cursor-pointer transition-all flex flex-col min-h-[110px] ${
         selecionado ? 'bg-blue-100 ring-2 ring-blue-500 rounded-sm' : 'hover:bg-gray-50'
       } text-[16px] leading-tight`} 
     >
@@ -26,29 +26,38 @@ export const CartaoDia = ({ data, escala, selecionado, aoClicar }: CartaoDiaProp
         {data}
       </div>
       
-      {renderLinha('S.de Cântico', escala.cantico)}
-      {renderLinha('Plataforma', escala.plataforma2 ? `${escala.plataforma} / ${escala.plataforma2}` : escala.plataforma)}
-      {renderLinha('Sermão', escala.sermao)}
-      
-      {renderLinha('Mensagem especial', escala.mensagem2 ? `${escala.mensagem} / ${escala.mensagem2}` : escala.mensagem)}
+      {escala.isCultoCancelado ? (
+        <div className="flex-1 flex items-center justify-center py-2 px-1">
+          <span className="font-black text-red-600 text-center uppercase leading-tight text-[18px]">
+            {escala.motivoCancelamento || 'SEM PROGRAMAÇÃO'}
+          </span>
+        </div>
+      ) : (
+        <>
+          {renderLinha('S.de Cântico', escala.cantico)}
+          {renderLinha('Plataforma', escala.plataforma2 ? `${escala.plataforma} / ${escala.plataforma2}` : escala.plataforma)}
+          {renderLinha('Sermão', escala.sermao)}
+          {renderLinha('Mensagem especial', escala.mensagem2 ? `${escala.mensagem} / ${escala.mensagem2}` : escala.mensagem)}
 
-      <div className="flex flex-wrap gap-x-2">
-        <div>
-          <span className="font-bold text-black">Rec: </span>
-          <span className="font-bold text-red-600">
-            {escala.rec}
-            {escala.rec2 ? ` / ${escala.rec2}` : ''}
-          </span>
-        </div>
-        
-        <div className="ml-2">
-          <span className="font-bold text-black">Ofertas: </span>
-          <span className="font-bold text-red-600">
-            {escala.ofertas1}
-            {escala.ofertas2 ? `/ ${escala.ofertas2}` : ''}
-          </span>
-        </div>
-      </div>
+          <div className="flex flex-wrap gap-x-2">
+            <div>
+              <span className="font-bold text-black">Rec: </span>
+              <span className="font-bold text-red-600">
+                {escala.rec}
+                {escala.rec2 ? ` / ${escala.rec2}` : ''}
+              </span>
+            </div>
+            
+            <div className="ml-2">
+              <span className="font-bold text-black">Ofertas: </span>
+              <span className="font-bold text-red-600">
+                {escala.ofertas1}
+                {escala.ofertas2 ? `/ ${escala.ofertas2}` : ''}
+              </span>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

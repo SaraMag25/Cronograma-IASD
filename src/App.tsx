@@ -73,7 +73,7 @@ function App() {
 
   const obterEscalaDoDia = (data: string): EscalaDoDia => {
     return escalas[data] || {
-      cantico: '', plataforma: '', plataforma2: '', sermao: '', mensagem: '', mensagem2: '', rec: '', rec2: '', ofertas1: '', ofertas2: ''
+      cantico: '', plataforma: '', plataforma2: '', sermao: '', mensagem: '', mensagem2: '', rec: '', rec2: '', ofertas1: '', ofertas2: '', isCultoCancelado: false, motivoCancelamento: ''
     };
   };
 
@@ -82,6 +82,19 @@ function App() {
   const mostrarErro = (mensagem: string) => {
     setErro(mensagem);
     setTimeout(() => setErro(null), 5000);
+  };
+
+  const atualizarStatusCulto = (isCancelado: boolean, motivo: string) => {
+    if (!diaSelecionado) return;
+    const escalaAtual = obterEscalaDoDia(diaSelecionado);
+    setEscalas({
+      ...escalas,
+      [diaSelecionado]: {
+        ...escalaAtual,
+        isCultoCancelado: isCancelado,
+        motivoCancelamento: motivo
+      }
+    });
   };
 
   const atualizarEscala = (cargo: Cargos, nomeDoMembro: string) => {
@@ -223,6 +236,7 @@ function App() {
         diasDoMes={diasDoMes}
         obterEscalaDoDia={obterEscalaDoDia}
         atualizarEscala={atualizarEscala}
+        atualizarStatusCulto={atualizarStatusCulto} 
         exportarImagem={exportarImagem}
         apagarTodosOsDados={apagarTodosOsDados}
         nomesDosMeses={nomesDosMeses}

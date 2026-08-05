@@ -11,4 +11,6 @@ export interface EscalaDoDia {
   rec2?: string;
   ofertas1: string;
   ofertas2?: string;
+  isCultoCancelado?: boolean;
+  motivoCancelamento?: string;
 }
