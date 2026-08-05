@@ -170,8 +170,9 @@ function App() {
       mostrarErro("Todos os dados foram apagados com sucesso.");
     }
   };
-
+  
   return (
+    
     <div 
       className="min-h-screen bg-gray-300 flex overflow-x-hidden print:bg-white print:block"
       onClick={() => setDiaSelecionado(null)}
