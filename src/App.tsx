@@ -57,6 +57,20 @@ function App() {
     return { quartas, sabados, domingos };
   }, [mesSelecionado, anoSelecionado]);
 
+  const colunasOrdenadas = useMemo(() => {
+    const colunas = [
+      { id: 'quartas', titulo: 'Quartas', dias: diasDoMes.quartas },
+      { id: 'sabados', titulo: 'Sábados', dias: diasDoMes.sabados },
+      { id: 'domingos', titulo: 'Domingos', dias: diasDoMes.domingos }
+    ];
+
+    return colunas.sort((a, b) => {
+      const diaA = a.dias.length > 0 ? Number(a.dias[0].split('/')[0]) : 99;
+      const diaB = b.dias.length > 0 ? Number(b.dias[0].split('/')[0]) : 99;
+      return diaA - diaB;
+    });
+  }, [diasDoMes]);
+
   const obterEscalaDoDia = (data: string): EscalaDoDia => {
     return escalas[data] || {
       cantico: '', plataforma: '', sermao: '', mensagem: '', rec: '', ofertas1: '', ofertas2: ''
@@ -237,45 +251,35 @@ function App() {
             </div>
 
             <div className="grid grid-cols-3 flex-1 relative z-10">
-              <div className="border-r-2 border-black flex flex-col">
-                <div className="border-b-2 border-black py-2 bg-gray-50"><h2 className="text-3xl font-bold text-center text-black">Quartas</h2></div>
-                <div className="p-4 flex-1">
-                  {diasDoMes.quartas.map((data) => (
-                    <CartaoDia key={data} data={data} escala={obterEscalaDoDia(data)} selecionado={diaSelecionado === data} aoClicar={() => lidarComCliqueNoDia(data)} />
-                  ))}
-                </div>
-              </div>
-
-              <div className="border-r-2 border-black flex flex-col">
-                <div className="border-b-2 border-black py-2 bg-gray-50"><h2 className="text-3xl font-bold text-center text-black">Sábados</h2></div>
-                <div className="p-4 flex-1">
-                  {diasDoMes.sabados.map((data) => (
-                    <CartaoDia key={data} data={data} escala={obterEscalaDoDia(data)} selecionado={diaSelecionado === data} aoClicar={() => lidarComCliqueNoDia(data)} />
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col">
-                <div className="border-b-2 border-black py-2 bg-gray-50"><h2 className="text-3xl font-bold text-center text-black">Domingos</h2></div>
-                <div className="p-4 flex-1 flex flex-col justify-between">
-                  <div>
-                    {diasDoMes.domingos.map((data) => (
-                      <CartaoDia key={data} data={data} escala={obterEscalaDoDia(data)} selecionado={diaSelecionado === data} aoClicar={() => lidarComCliqueNoDia(data)} />
-                    ))}
+              {colunasOrdenadas.map((coluna, index) => (
+                <div key={coluna.id} className={`${index < 2 ? 'border-r-2 border-black' : ''} flex flex-col`}>
+                  
+                  <div className="border-b-2 border-black py-2 bg-gray-50 flex-shrink-0">
+                    <h2 className="text-3xl font-bold text-center text-black">{coluna.titulo}</h2>
                   </div>
                   
-                  <div className="mt-8 text-red-600 font-bold text-[16px] xl:text-[18px] leading-tight pb-4 px-4 whitespace-pre-wrap">
-                    {informacoesCustomizadas !== '' ? (
-                      informacoesCustomizadas
-                    ) : (
-                      <>
-                        Informações do mês de {nomesDosMeses[mesSelecionado]}:<br/>
-                        (Escreva os avisos aqui ou clique em sortear versículo)
-                      </>
+                  <div className="p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      {coluna.dias.map((data) => (
+                        <CartaoDia key={data} data={data} escala={obterEscalaDoDia(data)} selecionado={diaSelecionado === data} aoClicar={() => lidarComCliqueNoDia(data)} />
+                      ))}
+                    </div>
+
+                    {index === 2 && (
+                      <div className="mt-8 text-red-600 font-bold text-[16px] xl:text-[18px] leading-tight pb-4 px-4 whitespace-pre-wrap flex-shrink-0">
+                        {informacoesCustomizadas !== '' ? (
+                          informacoesCustomizadas
+                        ) : (
+                          <>
+                            Informações do mês de {nomesDosMeses[mesSelecionado]}:<br/>
+                            (Escreva os avisos aqui ou clique em sortear versículo)
+                          </>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>

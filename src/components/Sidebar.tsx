@@ -14,7 +14,11 @@ interface SidebarProps {
   sortearVersiculo: () => void;
   diaSelecionado: string | null;
   setDiaSelecionado: (dia: string | null) => void;
-  diasDoMes: { sabados: string[] };
+  diasDoMes: {
+    quartas: string[];
+    sabados: string[];
+    domingos: string[];
+  };
   obterEscalaDoDia: (data: string) => EscalaDoDia;
   atualizarEscala: (cargo: Cargos, nome: string) => void;
   exportarImagem: () => void;
