@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Cargos, EscalaDoDia } from '../types';
 
 interface SidebarProps {
@@ -53,6 +54,7 @@ export const Sidebar = ({
   const escalaAtual = diaSelecionado ? obterEscalaDoDia(diaSelecionado) : null;
   const isCancelado = escalaAtual?.isCultoCancelado || false;
   const motivoCancelamento = escalaAtual?.motivoCancelamento || '';
+  const [confirmandoExclusao, setConfirmandoExclusao] = useState(false);
 
   return (
     <div 
@@ -192,12 +194,35 @@ export const Sidebar = ({
             Exportar em Imagem
           </button>
 
-          <button 
-            onClick={apagarTodosOsDados}
-            className="mt-2 bg-red-600 text-white font-medium py-2 px-4 rounded-lg hover:bg-red-700 transition-all shadow-sm flex justify-center items-center text-xs"
-          >
-            Apagar Todos os Dados
-          </button>
+          {!confirmandoExclusao ? (
+            <button 
+              onClick={() => setConfirmandoExclusao(true)}
+              className="mt-2 bg-red-50 text-red-600 border border-red-200 font-medium py-2 px-4 rounded-lg hover:bg-red-100 transition-all shadow-sm flex justify-center items-center text-xs"
+            >
+              Apagar Todos os Dados
+            </button>
+          ) : (
+            <div className="mt-2 bg-red-50 p-3 rounded-lg border border-red-300 flex flex-col gap-2">
+              <span className="text-xs text-red-800 font-bold text-center">Tem certeza absoluta?</span>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => {
+                    apagarTodosOsDados();
+                    setConfirmandoExclusao(false);
+                  }}
+                  className="flex-1 bg-red-600 text-white font-bold py-1.5 px-2 rounded hover:bg-red-700 text-xs transition-colors"
+                >
+                  Sim, apagar
+                </button>
+                <button 
+                  onClick={() => setConfirmandoExclusao(false)}
+                  className="flex-1 bg-gray-200 text-gray-700 font-bold py-1.5 px-2 rounded hover:bg-gray-300 text-xs transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
