@@ -22,9 +22,9 @@ A arquitetura do projeto foi modularizada para facilitar a manutenção e custom
 * **`src/App.tsx`**
   Componente principal da aplicação. Gerencia o estado global (mês, ano, tema de cores, escalas salvas no `localStorage`), calcula dinamicamente os dias da semana e gerencia a exportação de imagem.
 
-* **`src/membros.ts`**
-  **Lista de Membros:** Contém o array com os nomes cadastrados para alimentar a lista de sugestões (*datalist*).
-  > 💡 **Nota sobre customização:** Preencher este arquivo **não é obrigatório**. Caso queira, você pode clonar o repositório e adicionar os nomes dos membros da sua igreja aqui para facilitar a seleção. No entanto, o sistema também permite que você digite nomes livremente a qualquer momento.
+* **`src/membros.ts.example`**
+  **Modelo de Membros:** Contém um array de exemplo com nomes genéricos para alimentar a lista de sugestões (*datalist*).
+  > 💡 **Nota para clonagem:** Renomeie este arquivo para `membros.ts` caso queira pré-cadastrar os membros da sua comunidade. O sistema também permite digitar nomes livremente a qualquer momento.
 
 * **`src/versiculos.ts`**
   Repositório contendo uma lista de versículos bíblicos utilizados pelo sistema para o recurso de **sorteio automático de versículos e avisos** no rodapé do cronograma.
@@ -47,16 +47,22 @@ A arquitetura do projeto foi modularizada para facilitar a manutenção e custom
 
 ---
 
+## 📥 Baixar Aplicativo (.exe para Windows)
+
+Se você deseja apenas utilizar o aplicativo no Windows sem precisar clonar o repositório ou rodar comandos de código, acesse a aba **[Releases](https://github.com/SaraMag25/Cronograma-IASD/releases)** deste repositório e faça o download direto do instalador **`Cronograma IASD Setup.exe`**.
+
+---
+
 ## 🛠️ Como Executar o Projeto Localmente
 
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/SaraMag25/Conograma-IASD.git
+   git clone https://github.com/SaraMag25/Cronograma-IASD.git
    ```
 
 2. Entre na pasta do projeto:
    ```bash
-   cd cronograma
+   cd Cronograma-IASD
    ```
 
 3. Instale as dependências:
@@ -69,7 +75,7 @@ A arquitetura do projeto foi modularizada para facilitar a manutenção e custom
    npm run dev
    ```
 
-5. Para gerar a build de produção / instalador executável:
+5. Para gerar a build de produção e o instalador `.exe` executável localmente:
    ```bash
    npm run build
    ```
