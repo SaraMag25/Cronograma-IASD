@@ -25,8 +25,6 @@ function createWindow() {
   ? path.join(process.resourcesPath, "public", "logoapp.png")
   : path.join(process.env.APP_ROOT!, "public", "logoapp.png");
 
-console.log("Ícone:", iconPath);
-console.log("Existe:", fs.existsSync(iconPath));
 
 win = new BrowserWindow({
   width: 1200,
