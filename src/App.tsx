@@ -11,7 +11,7 @@ function App() {
   const [erro, setErro] = useState<string | null>(null);
   const [diaSelecionado, setDiaSelecionado] = useState<string | null>(null);
 
-  const [mesSelecionado, setMesSelecionado] = useState(() => Number(localStorage.getItem('mesSelecionado')) || 6);
+  const [mesSelecionado, setMesSelecionado] = useState(() => Number(localStorage.getItem('mesSelecionado')) || 8);
   const [anoSelecionado, setAnoSelecionado] = useState(() => Number(localStorage.getItem('anoSelecionado')) || 2026);
   const [corTema, setCorTema] = useState(() => localStorage.getItem('corTema') || '#c2dceb');
   const [informacoesCustomizadas, setInformacoesCustomizadas] = useState(() => localStorage.getItem('informacoesCustomizadas') || '');
@@ -147,46 +147,50 @@ function App() {
     setMenuAberto(false);  
     
     setTimeout(async () => {
-      const elemento = document.getElementById('folha-cronograma');
-      if (!elemento) return;
+      const elementoOriginal = document.getElementById('folha-cronograma');
+      if (!elementoOriginal) return;
+      const clone = elementoOriginal.cloneNode(true) as HTMLElement;
+      clone.style.transform = 'none';
+      clone.style.position = 'fixed';
+      clone.style.top = '-9999px';
+      clone.style.left = '-9999px';
+      clone.style.zIndex = '99999';
+      document.body.appendChild(clone);
 
-      const canvas = await html2canvas(elemento, { 
-        scale: 2,
-        useCORS: true 
-      });
-      
-      const dataURL = canvas.toDataURL('image/png');
-      const nomeDoArquivo = `Cronograma-${nomesDosMeses[mesSelecionado]}-${anoSelecionado}.png`;
+      try {
+        const canvas = await html2canvas(clone, { 
+          scale: 2,
+          useCORS: true,
+          windowWidth: 1123,
+          windowHeight: 794
+        });
+        
+        const dataURL = canvas.toDataURL('image/png');
+        const nomeDoArquivo = `Cronograma-${nomesDosMeses[mesSelecionado]}-${anoSelecionado}.png`;
 
-      // @ts-ignore
-      if (window.api && window.api.salvarImagem) {
         // @ts-ignore
-        await window.api.salvarImagem(dataURL, nomeDoArquivo);
-      } else {
-        const link = document.createElement('a');
-        link.href = dataURL;
-        link.download = nomeDoArquivo;
-        link.click();
+        if (window.api && window.api.salvarImagem) {
+          // @ts-ignore
+          await window.api.salvarImagem(dataURL, nomeDoArquivo);
+        } else {
+          const link = document.createElement('a');
+          link.href = dataURL;
+          link.download = nomeDoArquivo;
+          link.click();
+        }
+      } finally {
+        document.body.removeChild(clone);
       }
     }, 400); 
   };
 
   const apagarTodosOsDados = () => {
-    const confirmacao = window.confirm(
-      "ATENÇÃO EXTREMA!\n\n" +
-      "Você está prestes a APAGAR TODOS os dados deste aplicativo.\n" +
-      "Isso inclui todas as escalas que você montou, avisos e configurações.\n\n" +
-      "Tem certeza absoluta de que deseja continuar? Essa ação NÃO PODE ser desfeita!"
-    );
-
-    if (confirmacao) {
-      localStorage.clear();
-      setEscalas({});
-      setInformacoesCustomizadas('');
-      setDiaSelecionado(null);
-      setCorTema('#c2dceb'); 
-      mostrarErro("Todos os dados foram apagados com sucesso.");
-    }
+    localStorage.clear();
+    setEscalas({});
+    setInformacoesCustomizadas('');
+    setDiaSelecionado(null);
+    setCorTema('#c2dceb'); 
+    mostrarErro("Todos os dados foram apagados com sucesso.");
   };
   
   return (
@@ -236,7 +240,7 @@ function App() {
         diasDoMes={diasDoMes}
         obterEscalaDoDia={obterEscalaDoDia}
         atualizarEscala={atualizarEscala}
-        atualizarStatusCulto={atualizarStatusCulto} 
+        atualizarStatusCulto={atualizarStatusCulto}
         exportarImagem={exportarImagem}
         apagarTodosOsDados={apagarTodosOsDados}
         nomesDosMeses={nomesDosMeses}
@@ -247,63 +251,65 @@ function App() {
           menuAberto ? "ml-80" : "ml-0"
         }`}
       >
-        <div className="min-w-max min-h-max p-4 md:p-8 flex justify-center items-center">
+        <div className="min-w-max min-h-max p-8 md:p-16 flex justify-center items-center">
           
-          <div 
-            id="folha-cronograma"
-            onClick={(e) => e.stopPropagation()} 
-            className="bg-white border-2 border-black shadow-2xl flex flex-col relative overflow-hidden print:shadow-none print:border-0 shrink-0" 
-            style={{ 
-              fontFamily: '"Arial Black", Arial, sans-serif',
-              width: '1123px',
-              height: '794px' 
-            }}
-          >
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-              <img 
-                src="./logo.jpeg" 
-                alt="" 
-                className="w-[45%] opacity-15 object-contain" 
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
-              />
-            </div>
+          <div className="transform scale-[1.18] xl:scale-[1.28] origin-center transition-transform my-8">
+            <div 
+              id="folha-cronograma"
+              onClick={(e) => e.stopPropagation()} 
+              className="bg-white border-2 border-black shadow-2xl flex flex-col relative overflow-hidden print:shadow-none print:border-0 shrink-0" 
+              style={{ 
+                fontFamily: '"Arial Black", Arial, sans-serif',
+                width: '1123px',
+                height: '794px' 
+              }}
+            >
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+                <img 
+                  src="./logo.jpeg" 
+                  alt="" 
+                  className="w-[42%] opacity-10 object-contain" 
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = 'none';
+                  }}
+                />
+              </div>
 
-            <div className="border-b-2 border-black py-2 transition-colors duration-300 relative z-10 flex-shrink-0" style={{ backgroundColor: corTema }}>
-              <h1 className="text-[38px] font-bold text-center text-black tracking-wide">Cronograma</h1>
-            </div>
+              <div className="border-b-2 border-black py-2 transition-colors duration-300 relative z-10 flex-shrink-0" style={{ backgroundColor: corTema }}>
+                <h1 className="text-[38px] font-bold text-center text-black tracking-wide">Cronograma</h1>
+              </div>
 
-            <div className="grid grid-cols-3 flex-1 relative z-10">
-              {colunasOrdenadas.map((coluna, index) => (
-                <div key={coluna.id} className={`${index < 2 ? 'border-r-2 border-black' : ''} flex flex-col`}>
-                  
-                  <div className="border-b-2 border-black py-1 bg-gray-50 flex-shrink-0">
-                    <h2 className="text-[26px] font-bold text-center text-black">{coluna.titulo}</h2>
-                  </div>
-                  
-                  <div className="p-2 flex-1 flex flex-col justify-between">
-                    <div>
-                      {coluna.dias.map((data) => (
-                        <CartaoDia key={data} data={data} escala={obterEscalaDoDia(data)} selecionado={diaSelecionado === data} aoClicar={() => lidarComCliqueNoDia(data)} />
-                      ))}
+              <div className="grid grid-cols-3 flex-1 relative z-10">
+                {colunasOrdenadas.map((coluna, index) => (
+                  <div key={coluna.id} className={`${index < 2 ? 'border-r-2 border-black' : ''} flex flex-col`}>
+                    
+                    <div className="border-b-2 border-black py-1 bg-gray-50 flex-shrink-0">
+                      <h2 className="text-[26px] font-bold text-center text-black">{coluna.titulo}</h2>
                     </div>
-
-                    {index === 2 && (
-                      <div className="mt-2 text-red-600 font-bold text-[17px] leading-tight px-2 whitespace-pre-wrap flex-shrink-0">
-                        {informacoesCustomizadas !== '' ? (
-                          informacoesCustomizadas
-                        ) : (
-                          <>
-                            Informações do mês de {nomesDosMeses[mesSelecionado]}:<br/>
-                            (Escreva os avisos aqui ou clique em sortear versículo)
-                          </>
-                        )}
+                    
+                    <div className="px-3 py-2 flex-1 flex flex-col justify-between">
+                      <div className="space-y-1">
+                        {coluna.dias.map((data) => (
+                          <CartaoDia key={data} data={data} escala={obterEscalaDoDia(data)} selecionado={diaSelecionado === data} aoClicar={() => lidarComCliqueNoDia(data)} />
+                        ))}
                       </div>
-                    )}
+
+                      {index === 2 && (
+                        <div className="mt-2 text-red-600 font-bold text-[16px] leading-tight px-1 pb-2 whitespace-pre-wrap flex-shrink-0">
+                          {informacoesCustomizadas !== '' ? (
+                            informacoesCustomizadas
+                          ) : (
+                            <>
+                              Informações do mês de {nomesDosMeses[mesSelecionado]}:<br/>
+                              (Escreva os avisos aqui ou clique em sortear versículo)
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
