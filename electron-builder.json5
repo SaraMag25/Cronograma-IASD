@@ -1,25 +1,26 @@
 {
-  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-
-  "appId": "com.cronograma.iasd",
-  "productName": "Cronograma IASD",
-
-  "directories": {
-    "output": "release/${version}",
-    "buildResources": "build"
+  appId: "com.cronograma.iasd",
+  productName: "Cronograma IASD",
+  directories: {
+    output: "release/${version}"
   },
-
-  "files": [
+  files: [
     "dist/**/*",
-    "dist-electron/**/*"
+    "package.json"
   ],
-
-  "linux": {
-    "target": "AppImage",
-    "category": "Utility"
+  win: {
+    target: [
+      {
+        target: "nsis", // Gera o instalador padrão unificado
+        arch: ["x64"]
+      }
+    ]
   },
-
-  "win": {
-    "target": "nsis"
+  nsis: {
+    oneClick: false,
+    allowToChangeInstallationDirectory: true,
+    installerIcon: "build/icon.ico",
+    uninstallerIcon: "build/icon.ico",
+    shortcutName: "Cronograma IASD"
   }
 }

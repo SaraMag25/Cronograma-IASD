@@ -251,9 +251,9 @@ function App() {
           menuAberto ? "ml-80" : "ml-0"
         }`}
       >
-        <div className="min-w-max min-h-max p-8 md:p-16 flex justify-center items-center">
+        <div className="min-w-max min-h-max p-4 md:p-8 flex justify-center items-center">
           
-          <div className="transform scale-[1.18] xl:scale-[1.28] origin-center transition-transform my-8">
+          <div className="transform scale-[1.0] xl:scale-[1.10] origin-center transition-transform my-4">
             <div 
               id="folha-cronograma"
               onClick={(e) => e.stopPropagation()} 
@@ -295,7 +295,7 @@ function App() {
                       </div>
 
                       {index === 2 && (
-                        <div className="mt-2 text-red-600 font-bold text-[16px] leading-tight px-1 pb-2 whitespace-pre-wrap flex-shrink-0">
+                        <div className="mt-1 text-red-600 font-bold text-[13px] leading-tight px-1 pb-1 whitespace-pre-wrap flex-shrink-0">
                           {informacoesCustomizadas !== '' ? (
                             informacoesCustomizadas
                           ) : (

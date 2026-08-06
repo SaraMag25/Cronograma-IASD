@@ -27,6 +27,6 @@ dist-ssr
 /src/membros.ts
 
 # Pastas de build e instaladores finais 
-dist/
-dist-electron/
 release/
+dist/
+dist_electron/
